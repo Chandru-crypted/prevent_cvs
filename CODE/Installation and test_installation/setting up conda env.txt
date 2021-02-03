@@ -1,0 +1,77 @@
+Ref website 
+https://www.pyimagesearch.com/2017/04/24/eye-blink-detection-opencv-python-dlib/
+
+[ click start 
+search anaconda prompt 
+then in the right there will be options for opening as administrator click it
+copy each code from here 
+and right click there that's it
+
+after runnig a code wait for a feww minutes and if it asks y/n press y] 
+
+we will create a new environment 
+
+$ conda create --name prevent_cvs python=3.7
+
+$ conda activate prevent_cvs
+
+for installing open cv i checked in pyimage search itself, but it did not have 
+support for windows OS 
+https://www.pyimagesearch.com/opencv-tutorials-resources-guides/ 
+
+so i checked another website 
+https://www.roundsqr.com/computer-vision-getting-started/ 
+
+so will be following the commands in the above website for installing
+
+$ conda update --all
+
+$ conda install -c conda-forge opencv
+
+wait for 15 min 
+
+$ conda update --all 
+
+$ python -m pip install https://files.pythonhosted.org/packages/0e/ce/f8a3cff33ac03a8219768f0694c5d703c8e037e6aba2e865f9bae22ed63c/dlib-19.8.1-cp36-cp36m-win_amd64.whl#sha256=794994fa2c54e7776659fddb148363a5556468a6d5d46be8dad311722d54bfcf
+if the above thing works its good but if it does'nt then follow this procedure 
+
+or 
+
+refer this website 
+
+https://stackoverflow.com/questions/41912372/dlib-installation-on-windows-10
+
+1) go to this website https://cmake.org/download/ 
+download this "Windows win64-x64 Installer: Installer tool has changed. Uninstall CMake 3.4 or lower first!" 
+
+install the downloaded installer 
+click install
+and click on add to the path option
+
+
+2) assuming the anaconda prompt is opened in administrator mode and being present in the virtual env
+$ pip install cmake	
+3) $ conda install -c conda-forge dlib 
+4) $ conda update --all
+5) $conda install -c conda-forge imutils
+6) $ conda update --all
+
+7) then run the code "check_inst.py" it will give a pop image that will have the facial landmarks in it
+to run this code 
+if u are using git hub desktop just press ctl + shift + F  
+then it will open the file explorer with the github
+now go into the code folder 
+now copy this location 
+type the following in prompt
+$ cd yourlocation 
+$ python check_inst.py
+
+
+
+
+
+
+
+
+
+
