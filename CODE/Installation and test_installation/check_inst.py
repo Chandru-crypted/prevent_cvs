@@ -26,3 +26,4 @@ for (i, rect) in enumerate(rects):
 # show the output image with the face detections + facial landmarks
 cv2.imshow("Output", image)
 cv2.waitKey(0)
+#dushyanth
