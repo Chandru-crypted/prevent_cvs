@@ -1,0 +1,26 @@
+in one min person on an average blinks 12 to 15 times 
+
+the average duration of one blink is around 100 to 150 ms
+1 second is equal to 1000 ms
+
+
+the average webcam produces 30Fps
+
+How much long is one frame 
+1000 / 30 = 33ms
+the blink will span for 5 frames 
+
+
+the gap between each frame is 33 ms
+
+if u have the gap of 100-150ms between the frames u will lose a blink
+
+
+for example if we have 15Fps 
+we will have a gap of 66ms between each frame 
+the blink will span for 2 frames approax
+this is well below the average blink duration 
+so that we have totally 15 * 60 = 900 frames to process in a minute
+
+hence proved 
+we will skip alternate frames
