@@ -51,8 +51,8 @@ args = vars(ap.parse_args())
 # define two constants, one for the eye aspect ratio to indicate
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold
-EYE_AR_THRESH = 0.3
-EYE_AR_CONSEC_FRAMES = 2 # ------- change 
+EYE_AR_THRESH = 0.2 # i changed this from 0.3 to 0.2
+EYE_AR_CONSEC_FRAMES = 1 # ------- change i changed this from 2 to 1
 
 # Since we are skipping frames in fast processing should we change this const that is above
 
@@ -204,7 +204,7 @@ print("\n")
 print("\nThe total frames in video {}".format(frame_counter))
 print("\nThe FPS of the original video is total (frames / duration) of the video")
 print("\nThe number of frames processed is {}".format(frame_processed_counter))
-
+print("\nThe total number of blinks is {}".format(TOTAL));
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
