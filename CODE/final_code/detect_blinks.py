@@ -114,6 +114,7 @@ while True:
 		# threshold, and if so, increment the blink frame counter
 		if ear < EYE_AR_THRESH:
 			COUNTER += 1
+			#print("Counter inc", COUNTER)
 
 		# otherwise, the eye aspect ratio is not below the blink
 		# threshold

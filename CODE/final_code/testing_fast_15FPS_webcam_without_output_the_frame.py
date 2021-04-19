@@ -2,8 +2,10 @@
 # 1) do fast facial landmark with static video and EAR thing  
 # 2) or we can go live approach and try EAR ratio in that 
 
-# -------------------- 1st approach ----------------------------
+# -------------------- 2nd approach ----------------------------
 
+# i am not going to output any frame in this code
+# just i will tell u the number of blinks per minute
 
 # import the necessary packages
 from scipy.spatial import distance as dist
@@ -51,7 +53,7 @@ args = vars(ap.parse_args())
 # define two constants, one for the eye aspect ratio to indicate
 # blink and then a second constant for the number of consecutive
 # frames the eye must be below the threshold
-EYE_AR_THRESH = 0.2 # i changed this from 0.3 to 0.2
+EYE_AR_THRESH = 0.25 # i changed this from 0.3 to 0.25
 EYE_AR_CONSEC_FRAMES = 1 # ------- change i changed this from 2 to 1
 
 # Since we are skipping frames in fast processing should we change this const that is above
@@ -73,11 +75,11 @@ predictor = dlib.shape_predictor(args["shape_predictor"])
 
 # start the video stream thread
 print("[INFO] starting video stream thread...")
-vs = FileVideoStream(args["video"]).start()
-fileStream = True
-# vs = VideoStream(src=0).start()
+# vs = FileVideoStream(args["video"]).start()
+# fileStream = True
+vs = VideoStream(src=0).start()
 # vs = VideoStream(usePiCamera=True).start()
-# fileStream = False
+fileStream = False
 time.sleep(1.0)
 
 
@@ -100,6 +102,8 @@ temp_to_process_counter = 1
 # frame count that we need
 frame_counter = 0
 frame_processed_counter = 0
+timed_frame_counter = 0
+rate_of_blinks = 0 # rate of blinks per minute
 
 while True:
 
@@ -162,6 +166,7 @@ while True:
 			# threshold, and if so, increment the blink frame counter
 			if ear < EYE_AR_THRESH:
 				COUNTER += 1
+				#print("Counter inc", COUNTER)
 
 			# otherwise, the eye aspect ratio is not below the blink
 			# threshold
@@ -175,15 +180,15 @@ while True:
 			
 			# draw the total number of blinks on the frame along with
 			# the computed eye aspect ratio for the frame
-			cv2.putText(frame, "Blinks: {}".format(TOTAL), (10, 30),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			#cv2.putText(frame, "Blinks: {}".format(TOTAL), (10, 30),
+			#	cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			#cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
+			#	cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 		
 		temp_to_process_counter += 1
 		temp_batch_counter += 1
 		# show the frame
-		cv2.imshow("Frame", frame)
+		#cv2.imshow("Frame", frame)
 		key = cv2.waitKey(1) & 0xFF
 		# if the `q` key was pressed, break from the loop
 		if key == ord("q"):
@@ -198,6 +203,15 @@ while True:
 	
 	# increment frame counter 
 	frame_counter += 1 
+	# as we are processing every seconds 15 frames
+	# so i calculated that every 10 seconds u need to atleast blink 2 times
+	if timed_frame_counter == 900:
+		if (TOTAL < 15) :
+			print("BLINK BRO !") 
+			timed_frame_counter = 0
+			TOTAL = 0
+	else:
+		timed_frame_counter += 1
 
 
 print("\n")
