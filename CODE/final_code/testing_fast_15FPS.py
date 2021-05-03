@@ -16,6 +16,69 @@ import imutils
 import time
 import dlib
 import cv2
+import copy
+
+import pandas as pd
+import numpy
+from pandas import DataFrame
+from matplotlib import pyplot
+from pandas import read_csv
+#from pandas import to_csv
+from pandas import set_option
+from pandas.plotting import scatter_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import GridSearchCV
+#from sklearn.metrics import AdaBoostClassifierfication_report
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.metrics import roc_auc_score
+from sklearn.metrics import classification_report
+
+dataset=pd.read_csv("balanced_preproc_all.csv", index_col="frame")
+# Split-out validation dataset
+array = dataset.values
+X = array[:,:dataset.shape[1]-1].astype(float)
+Y = array[:,dataset.shape[1]-1]
+validation_size = 0.20
+seed = 7
+X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y,test_size=validation_size, random_state=seed)
+
+
+# Test options and evaluation metric
+num_folds = 10
+seed = 7
+scoring = 'accuracy'
+
+
+# prepare the model
+# prepare the model
+scaler = StandardScaler().fit(X_train)
+rescaledX = scaler.transform(X_train)
+model = SVC(C=1.7)  #choose our best model and C
+model.fit(rescaledX, Y_train)
+
+# estimate accuracy on validation dataset
+rescaledValidationX = scaler.transform(X_validation)
+predictions = model.predict(rescaledValidationX)
+print(accuracy_score(Y_validation, predictions))
+print(confusion_matrix(Y_validation, predictions))
+print(classification_report(Y_validation, predictions))
+
+print(roc_auc_score(Y_validation,predictions))
 
 
 def eye_aspect_ratio(eye):
@@ -34,6 +97,63 @@ def eye_aspect_ratio(eye):
 
 	# return the eye aspect ratio
 	return (ear)
+
+
+def process_ear_lis(ear_lis):
+	listear = np.array(ear_lis)
+	listear = (listear-np.nanmin(listear))/(np.nanmax(listear)-np.nanmin(listear))
+	ear_lis = list(listear)
+	pyplot.rcParams['figure.figsize'] = [24, 24]
+	pyplot.plot(ear_lis)
+	pyplot.savefig('2.png')
+	pyplot.show()
+	ear_to_be_fed_into_SVM = []
+	for i in range(len(ear_lis) - 6):
+		temp = []
+		for j in range(7):
+			temp.append(ear_lis[i+j])
+			temp.append(ear_lis[i+j])
+			temp.append(ear_lis[i+j])
+		ear_to_be_fed_into_SVM.append(np.asarray(temp[:7]))
+		ear_to_be_fed_into_SVM.append(np.asarray(temp[7:14]))
+		ear_to_be_fed_into_SVM.append(np.asarray(temp[14:21]))
+	print(ear_to_be_fed_into_SVM)
+	a = np.asarray(ear_to_be_fed_into_SVM, dtype = float)
+	print(type(a))
+	# print(a)
+	rescaledX = scaler.transform(a)
+	print(rescaledX)
+	predictions = model.predict(rescaledX)
+	print(predictions)
+	BLINK_LIST = list(predictions)
+	for n in range(len(BLINK_LIST)):
+		#trovo il primo 1.0
+		if BLINK_LIST[n]==1.0:
+			i = copy.deepcopy(n)
+		#correggi 1.0 isolati: se è un 1.0 singolo (o doppio) diventa 0.0 (o 0.0 0.0)
+			if sum(BLINK_LIST[i:i+6])<3.0:
+					BLINK_LIST[i]=0.0
+			else:
+				#correggi 0.0 isolati: se ci sono 0.0 singoli (o doppi) (o tripli) diventano 1.0 (o 1.0 1.0) (o 1.0 1.0 1.0)
+				while (sum(BLINK_LIST[i:i+6])>=3.0):
+					BLINK_LIST[i+1]=1.0
+					BLINK_LIST[i+2]=1.0
+					i+=1
+
+	print(sum(BLINK_LIST))
+	#ora costruisco singoli 1.0 corrispondenti al blink
+	for n in range(len(BLINK_LIST)):
+		#trovo il primo 1.0
+		if BLINK_LIST[n]==1.0:
+			i = copy.deepcopy(n)
+			while (BLINK_LIST[i+1]==1.0):
+				BLINK_LIST[i+1]=0.0
+				i+=1
+
+	#scala gli 1.0 di 5 frame per posizionarlo alla chiusura circa
+	BLINK_LIST=[0.0,0.0,0.0,0.0,0.0]+BLINK_LIST[:len(BLINK_LIST)-5]
+	print(BLINK_LIST)
+	print(sum(BLINK_LIST))
 
 
 # Usage
@@ -87,9 +207,9 @@ time.sleep(1.0)
 heightResize = 480
 
 # here we are specifying how many frames it has to skipped in the video file stream so that it will deduct fast face detection. 
-a_batch = 2
+a_batch = 1
 noofframes_to_process = 1
-noofframes_to_skip = 1
+noofframes_to_skip = 0
 temp_batch_counter = 1
 temp_to_skip_counter = 1
 temp_to_process_counter = 1
@@ -100,6 +220,9 @@ temp_to_process_counter = 1
 # frame count that we need
 frame_counter = 0
 frame_processed_counter = 0
+
+
+ear_lis = []
 
 while True:
 
@@ -173,7 +296,7 @@ while True:
 					TOTAL += 1
 				# reset the eye frame counter
 				COUNTER = 0
-			
+			ear_lis.append(ear)
 			# draw the total number of blinks on the frame along with
 			# the computed eye aspect ratio for the frame
 			cv2.putText(frame, "Blinks: {}".format(TOTAL), (10, 30),
@@ -206,6 +329,9 @@ print("\nThe total frames in video {}".format(frame_counter))
 print("\nThe FPS of the original video is total (frames / duration) of the video")
 print("\nThe number of frames processed is {}".format(frame_processed_counter))
 print("\nThe total number of blinks is {}".format(TOTAL));
+
+process_ear_lis(ear_lis)
+
 # do a bit of cleanup
 cv2.destroyAllWindows()
 vs.stop()
