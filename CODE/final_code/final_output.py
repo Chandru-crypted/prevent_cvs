@@ -129,19 +129,19 @@ def eye_aspect_ratio(eye):
 	return (ear)
 
 def process_ear_lis(ear_lis):
-	print(ear_lis)
-	print(len(ear_lis))
-	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	pyplot.plot(ear_lis)
-	pyplot.savefig('1.png')
+	#print(ear_lis)
+	#print(len(ear_lis))
+	#pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	#pyplot.plot(ear_lis)
+	#pyplot.savefig('1.png')
 	#pyplot.show()
 	ear_to_be_fed_into_SVM = []
 	listear = np.array(ear_lis)
 	listear = (listear-np.nanmin(listear))/(np.nanmax(listear)-np.nanmin(listear))
 	ear_lis = list(listear)
-	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	pyplot.plot(ear_lis)
-	pyplot.savefig('2.png')
+	#pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	#pyplot.plot(ear_lis)
+	#pyplot.savefig('2.png')
 	#pyplot.show()
 	for i in range(len(ear_lis) - 6):
 		temp = []
@@ -156,20 +156,20 @@ def process_ear_lis(ear_lis):
 	# while (i < (len(ear_lis) - 6)):
 	# 	ear_to_be_fed_into_SVM.append(np.asarray(ear_lis[i : i + 7]))
 	# 	i += 7
-	print(ear_to_be_fed_into_SVM)
+	#print(ear_to_be_fed_into_SVM)
 	a = np.asarray(ear_to_be_fed_into_SVM, dtype = float)
 	# print(type(a))
-	print(a)
+	#print(a)
 	#rescaledX = a
 	rescaledX = scaler.transform(a)
 	# print(rescaledX)
 	predictions = model.predict(rescaledX)
 	# print(predictions)
 	BLINK_LIST = list(predictions)
-	print(BLINK_LIST)
-	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	pyplot.plot(ear_lis)
-	pyplot.savefig('3.png')
+	#print(BLINK_LIST)
+	# pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	# pyplot.plot(ear_lis)
+	# pyplot.savefig('3.png')
 	# for n in range(len(BLINK_LIST)):
 	# 	#trovo il primo 1.0
 	# 	if BLINK_LIST[n]==1.0:
@@ -199,9 +199,9 @@ def process_ear_lis(ear_lis):
 	# # print(BLINK_LIST)
 	# print(sum(BLINK_LIST))
 	y = lfilter(taps, 1.0, BLINK_LIST)
-	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	pyplot.plot(y)
-	pyplot.savefig('4.png')
+	# pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	# pyplot.plot(y)
+	# pyplot.savefig('4.png')
 	#pyplot.show()
 	for i in range(len(y)):
 		if (y[i] <= 0.5):
@@ -222,11 +222,11 @@ def process_ear_lis(ear_lis):
 	#y = [0.0,0.0,0.0,0.0,0.0] + y[0 :len(y) - 5]
 
 
-	print(y)
-	print(len(y))
-	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	pyplot.plot(y)
-	pyplot.savefig('5.png')
+	# print(y)
+	# print(len(y))
+	# pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	# pyplot.plot(y)
+	# pyplot.savefig('5.png')
 	#pyplot.show()
 
 
@@ -237,7 +237,7 @@ def process_ear_lis(ear_lis):
 	# 		print( "---- 1 here ")
 	# 	print()
 
-	print("-------- The digital filter approach {} -------".format(sum(y)))
+	print("-------- The digital filter approach for every 300 frames {} -------".format(sum(y)))
 
 # Usage
 # python testing_fast_facial_landmark.py --shape-predictor shape_predictor_68_face_landmarks.dat --video blink_detection_demo.mp4
