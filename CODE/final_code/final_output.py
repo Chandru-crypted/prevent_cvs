@@ -65,17 +65,45 @@ num_folds = 10
 seed = 7
 scoring = 'accuracy'
 
+# from scipy.signal import lfilter
+from matplotlib import pyplot
+from scipy.signal import kaiserord, lfilter, firwin, freqz
+import copy
+
+sample_rate = 30.0
+
+# The Nyquist rate of the signal.
+nyq_rate = sample_rate / 2.0
+
+# The desired width of the transition from pass to stop,
+# relative to the Nyquist rate.  We'll design the filter
+# with a 5 Hz transition width.
+width = 5.0/nyq_rate
+
+# The desired attenuation in the stop band, in dB.
+ripple_db = 60.0
+
+# Compute the order and Kaiser parameter for the FIR filter.
+N, beta = kaiserord(ripple_db, width)
+
+# The cutoff frequency of the filter.
+cutoff_hz = 1.0
+
+# Use firwin with a Kaiser window to create a lowpass FIR filter.
+taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
 
 # prepare the model
 # prepare the model
 scaler = StandardScaler().fit(X_train)
 rescaledX = scaler.transform(X_train)
 model = SVC(C=1.7)  #choose our best model and C
-model.fit(rescaledX, Y_train)
+model.fit(rescaledX, Y_train) 
+#model.fit(X_train, Y_train)
 
 # estimate accuracy on validation dataset
 rescaledValidationX = scaler.transform(X_validation)
 predictions = model.predict(rescaledValidationX)
+#predictions = model.predict(X_validation)
 print(accuracy_score(Y_validation, predictions))
 print(confusion_matrix(Y_validation, predictions))
 print(classification_report(Y_validation, predictions))
@@ -101,60 +129,115 @@ def eye_aspect_ratio(eye):
 	return (ear)
 
 def process_ear_lis(ear_lis):
+	print(ear_lis)
+	print(len(ear_lis))
+	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	pyplot.plot(ear_lis)
+	pyplot.savefig('1.png')
+	pyplot.show()
+	ear_to_be_fed_into_SVM = []
 	listear = np.array(ear_lis)
 	listear = (listear-np.nanmin(listear))/(np.nanmax(listear)-np.nanmin(listear))
 	ear_lis = list(listear)
-	# pyplot.rcParams['figure.figsize'] = [24, 24]
-	# pyplot.plot(ear_lis)
-	# pyplot.savefig('2.png')
-	# pyplot.show()
-	ear_to_be_fed_into_SVM = []
+	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	pyplot.plot(ear_lis)
+	pyplot.savefig('2.png')
+	pyplot.show()
 	for i in range(len(ear_lis) - 6):
 		temp = []
 		for j in range(7):
 			temp.append(ear_lis[i+j])
-			# temp.append(ear_lis[i+j])
+			temp.append(ear_lis[i+j])
 			# temp.append(ear_lis[i+j])
 		ear_to_be_fed_into_SVM.append(np.asarray(temp[:7]))
-		# ear_to_be_fed_into_SVM.append(np.asarray(temp[7:14]))
+		ear_to_be_fed_into_SVM.append(np.asarray(temp[7:14]))
 		# ear_to_be_fed_into_SVM.append(np.asarray(temp[14:21]))
-	# print(ear_to_be_fed_into_SVM)
+	# i = 0 
+	# while (i < (len(ear_lis) - 6)):
+	# 	ear_to_be_fed_into_SVM.append(np.asarray(ear_lis[i : i + 7]))
+	# 	i += 7
+	print(ear_to_be_fed_into_SVM)
 	a = np.asarray(ear_to_be_fed_into_SVM, dtype = float)
 	# print(type(a))
-	# print(a)
+	print(a)
+	#rescaledX = a
 	rescaledX = scaler.transform(a)
 	# print(rescaledX)
 	predictions = model.predict(rescaledX)
 	# print(predictions)
 	BLINK_LIST = list(predictions)
-	for n in range(len(BLINK_LIST)):
-		#trovo il primo 1.0
-		if BLINK_LIST[n]==1.0:
-			i = copy.deepcopy(n)
-		#correggi 1.0 isolati: se è un 1.0 singolo (o doppio) diventa 0.0 (o 0.0 0.0)
-			if sum(BLINK_LIST[i:i+6])<3.0:
-					BLINK_LIST[i]=0.0
-			else:
-				#correggi 0.0 isolati: se ci sono 0.0 singoli (o doppi) (o tripli) diventano 1.0 (o 1.0 1.0) (o 1.0 1.0 1.0)
-				while (sum(BLINK_LIST[i:i+6])>=3.0):
-					BLINK_LIST[i+1]=1.0
-					BLINK_LIST[i+2]=1.0
-					i+=1
+	print(BLINK_LIST)
+	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	pyplot.plot(ear_lis)
+	pyplot.savefig('3.png')
+	# for n in range(len(BLINK_LIST)):
+	# 	#trovo il primo 1.0
+	# 	if BLINK_LIST[n]==1.0:
+	# 		i = copy.deepcopy(n)
+	# 	#correggi 1.0 isolati: se è un 1.0 singolo (o doppio) diventa 0.0 (o 0.0 0.0)
+	# 		if sum(BLINK_LIST[i:i+6])<3.0:
+	# 				BLINK_LIST[i]=0.0
+	# 		else:
+	# 			#correggi 0.0 isolati: se ci sono 0.0 singoli (o doppi) (o tripli) diventano 1.0 (o 1.0 1.0) (o 1.0 1.0 1.0)
+	# 			while (sum(BLINK_LIST[i:i+6])>=3.0):
+	# 				BLINK_LIST[i+1]=1.0
+	# 				BLINK_LIST[i+2]=1.0
+	# 				i+=1
 
+	# # print(sum(BLINK_LIST))
+	# #ora costruisco singoli 1.0 corrispondenti al blink
+	# for n in range(len(BLINK_LIST)):
+	# 	#trovo il primo 1.0
+	# 	if BLINK_LIST[n]==1.0:
+	# 		i = copy.deepcopy(n)
+	# 		while (BLINK_LIST[i+1]==1.0):
+	# 			BLINK_LIST[i+1]=0.0
+	# 			i+=1
+
+	# #scala gli 1.0 di 5 frame per posizionarlo alla chiusura circa
+	# BLINK_LIST=[0.0,0.0,0.0,0.0,0.0]+BLINK_LIST[:len(BLINK_LIST)-5]
+	# # print(BLINK_LIST)
 	# print(sum(BLINK_LIST))
-	#ora costruisco singoli 1.0 corrispondenti al blink
-	for n in range(len(BLINK_LIST)):
-		#trovo il primo 1.0
-		if BLINK_LIST[n]==1.0:
+	y = lfilter(taps, 1.0, BLINK_LIST)
+	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	pyplot.plot(y)
+	pyplot.savefig('4.png')
+	pyplot.show()
+	for i in range(len(y)):
+		if (y[i] <= 0.5):
+			y[i] = 0.0
+		else:
+			y[i] = 1.0
+	for n in range(len(y)):
+		if y[n]==1.0:
 			i = copy.deepcopy(n)
-			while (BLINK_LIST[i+1]==1.0):
-				BLINK_LIST[i+1]=0.0
-				i+=1
+			while ((i + 1 < len(y))):
+				if (y[i+1] == 1.0): 
+					y[i+1]=0.0
+					i+=1
+				else:
+					break
 
 	#scala gli 1.0 di 5 frame per posizionarlo alla chiusura circa
-	BLINK_LIST=[0.0,0.0,0.0,0.0,0.0]+BLINK_LIST[:len(BLINK_LIST)-5]
-	# print(BLINK_LIST)
-	print(sum(BLINK_LIST))
+	#y = [0.0,0.0,0.0,0.0,0.0] + y[0 :len(y) - 5]
+
+
+	print(y)
+	print(len(y))
+	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
+	pyplot.plot(y)
+	pyplot.savefig('5.png')
+	pyplot.show()
+
+
+
+	# for i in range(len(y)):
+	# 	print(i ,x[i], y[i], end = ' ')
+	# 	if y[i] == 1.0 :
+	# 		print( "---- 1 here ")
+	# 	print()
+
+	print("-------- The digital filter approach {} -------".format(sum(y)))
 
 # Usage
 # python testing_fast_facial_landmark.py --shape-predictor shape_predictor_68_face_landmarks.dat --video blink_detection_demo.mp4
@@ -207,7 +290,7 @@ time.sleep(1.0)
 heightResize = 480
 
 # here we are specifying how many frames it has to skipped in the video file stream so that it will deduct fast face detection. 
-a_batch = 2
+a_batch = 1
 noofframes_to_process = 1
 noofframes_to_skip = 0
 temp_batch_counter = 1
@@ -303,17 +386,30 @@ while True:
 			# the computed eye aspect ratio for the frame
 			#cv2.putText(frame, "Blinks: {}".format(TOTAL), (10, 30),
 			#	cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-			#cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
-			#	cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+			cv2.putText(frame, "EAR: {:.2f}".format(ear), (300, 30),
+				cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
 		
 		temp_to_process_counter += 1
 		temp_batch_counter += 1
 		# show the frame
-		#cv2.imshow("Frame", frame)
+		cv2.imshow("Frame", frame)
 		key = cv2.waitKey(1) & 0xFF
 		# if the `q` key was pressed, break from the loop
 		if key == ord("q"):
 			break
+		# as we are processing every seconds 15 frames
+		# so i calculated that every 10 seconds u need to atleast blink 2 times
+		if timed_frame_counter == 160:
+			process_ear_lis(ear_lis)
+			ear_lis = []
+			timed_frame_counter = 0
+			# if (TOTAL < 15) :
+			# 	print("BLINK BRO !") 
+			# 	timed_frame_counter = 0
+			# 	TOTAL = 0
+		else:
+			timed_frame_counter += 1
+			ear_lis.append(ear)
 	elif (temp_to_skip_counter <= noofframes_to_skip):
 		temp_to_skip_counter += 1
 		temp_batch_counter += 1
@@ -324,19 +420,7 @@ while True:
 	
 	# increment frame counter 
 	frame_counter += 1
-	# as we are processing every seconds 15 frames
-	# so i calculated that every 10 seconds u need to atleast blink 2 times
-	if timed_frame_counter == 300:
-		process_ear_lis(ear_lis)
-		ear_lis = []
-		timed_frame_counter = 0
-		# if (TOTAL < 15) :
-		# 	print("BLINK BRO !") 
-		# 	timed_frame_counter = 0
-		# 	TOTAL = 0
-	else:
-		timed_frame_counter += 1
-		ear_lis.append(ear)
+
 
 
 print("\n")
