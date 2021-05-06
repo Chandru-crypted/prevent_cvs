@@ -87,7 +87,7 @@ ripple_db = 60.0
 N, beta = kaiserord(ripple_db, width)
 
 # The cutoff frequency of the filter.
-cutoff_hz = 1.0
+cutoff_hz = 0.5
 
 # Use firwin with a Kaiser window to create a lowpass FIR filter.
 taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
@@ -418,8 +418,8 @@ while True:
 		temp_to_process_counter = 1
 		temp_to_skip_counter = 1
 	
-	if (frame_counter == 1800):
-		break
+	# if (frame_counter == 900):
+	#  	break
 	# increment frame counter 
 	frame_counter += 1
 
