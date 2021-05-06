@@ -134,7 +134,7 @@ def process_ear_lis(ear_lis):
 	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
 	pyplot.plot(ear_lis)
 	pyplot.savefig('1.png')
-	pyplot.show()
+	#pyplot.show()
 	ear_to_be_fed_into_SVM = []
 	listear = np.array(ear_lis)
 	listear = (listear-np.nanmin(listear))/(np.nanmax(listear)-np.nanmin(listear))
@@ -142,7 +142,7 @@ def process_ear_lis(ear_lis):
 	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
 	pyplot.plot(ear_lis)
 	pyplot.savefig('2.png')
-	pyplot.show()
+	#pyplot.show()
 	for i in range(len(ear_lis) - 6):
 		temp = []
 		for j in range(7):
@@ -202,7 +202,7 @@ def process_ear_lis(ear_lis):
 	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
 	pyplot.plot(y)
 	pyplot.savefig('4.png')
-	pyplot.show()
+	#pyplot.show()
 	for i in range(len(y)):
 		if (y[i] <= 0.5):
 			y[i] = 0.0
@@ -227,7 +227,7 @@ def process_ear_lis(ear_lis):
 	pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
 	pyplot.plot(y)
 	pyplot.savefig('5.png')
-	pyplot.show()
+	#pyplot.show()
 
 
 
@@ -399,7 +399,7 @@ while True:
 			break
 		# as we are processing every seconds 15 frames
 		# so i calculated that every 10 seconds u need to atleast blink 2 times
-		if timed_frame_counter == 160:
+		if timed_frame_counter == 300:
 			process_ear_lis(ear_lis)
 			ear_lis = []
 			timed_frame_counter = 0
@@ -418,6 +418,8 @@ while True:
 		temp_to_process_counter = 1
 		temp_to_skip_counter = 1
 	
+	if (frame_counter == 1800):
+		break
 	# increment frame counter 
 	frame_counter += 1
 
