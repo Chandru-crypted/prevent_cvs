@@ -70,7 +70,7 @@ from matplotlib import pyplot
 from scipy.signal import kaiserord, lfilter, firwin, freqz
 import copy
 
-sample_rate = 30.0
+sample_rate = 23.0
 
 # The Nyquist rate of the signal.
 nyq_rate = sample_rate / 2.0
@@ -87,7 +87,7 @@ ripple_db = 60.0
 N, beta = kaiserord(ripple_db, width)
 
 # The cutoff frequency of the filter.
-cutoff_hz = 0.5
+cutoff_hz = 0.8
 
 # Use firwin with a Kaiser window to create a lowpass FIR filter.
 taps = firwin(N, cutoff_hz/nyq_rate, window=('kaiser', beta))
@@ -132,25 +132,25 @@ def process_ear_lis(ear_lis):
 	#print(ear_lis)
 	#print(len(ear_lis))
 	#pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	#pyplot.plot(ear_lis)
-	#pyplot.savefig('1.png')
-	#pyplot.show()
+	# pyplot.plot(ear_lis)
+	# pyplot.savefig('1.png')
+	# pyplot.show()
 	ear_to_be_fed_into_SVM = []
 	listear = np.array(ear_lis)
 	listear = (listear-np.nanmin(listear))/(np.nanmax(listear)-np.nanmin(listear))
 	ear_lis = list(listear)
 	#pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
-	#pyplot.plot(ear_lis)
-	#pyplot.savefig('2.png')
-	#pyplot.show()
+	pyplot.plot(ear_lis)
+	pyplot.savefig('2.png')
+	pyplot.show()
 	for i in range(len(ear_lis) - 6):
 		temp = []
 		for j in range(7):
 			temp.append(ear_lis[i+j])
-			temp.append(ear_lis[i+j])
+			#temp.append(ear_lis[i+j])
 			# temp.append(ear_lis[i+j])
 		ear_to_be_fed_into_SVM.append(np.asarray(temp[:7]))
-		ear_to_be_fed_into_SVM.append(np.asarray(temp[7:14]))
+		#ear_to_be_fed_into_SVM.append(np.asarray(temp[7:14]))
 		# ear_to_be_fed_into_SVM.append(np.asarray(temp[14:21]))
 	# i = 0 
 	# while (i < (len(ear_lis) - 6)):
@@ -202,7 +202,7 @@ def process_ear_lis(ear_lis):
 	# pyplot.rcParams['figure.figsize'] = [((16/25) * 24), ((9/25)*24)]
 	# pyplot.plot(y)
 	# pyplot.savefig('4.png')
-	#pyplot.show()
+	# pyplot.show()
 	for i in range(len(y)):
 		if (y[i] <= 0.5):
 			y[i] = 0.0
@@ -399,7 +399,7 @@ while True:
 			break
 		# as we are processing every seconds 15 frames
 		# so i calculated that every 10 seconds u need to atleast blink 2 times
-		if timed_frame_counter == 300:
+		if timed_frame_counter == 150:
 			process_ear_lis(ear_lis)
 			ear_lis = []
 			timed_frame_counter = 0
